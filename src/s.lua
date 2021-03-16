@@ -12,6 +12,33 @@
 local s = {}
 s.stores = {}
 s.attributes = true
+s._attributeTypes = {
+	"string",
+	"boolean",
+	"number",
+	"UDim",
+	"UDim2",
+	"BrickColor",
+	"Color3",
+	"Vector2",
+	"Vector3",
+	"NumberSequence",
+	"ColorSequence",
+	"NumberRange",
+	"Rect",
+}
+
+do
+	s.none = newproxy(true)
+	getmetatable(s.none).__tostring = function()
+		return "none"
+	end
+
+	s.all = newproxy(true)
+	getmetatable(s.all).__tostring = function()
+		return "all"
+	end
+end
 
 --[=[
 	Copy a table
@@ -48,18 +75,12 @@ local function wrap(code: (any) -> (), ...): nil
 	end
 end
 
-do
-	s.none = newproxy(true)
-	getmetatable(s.none).__tostring = function()
-		return "s.none"
-	end
+--[=[
+	A new store or returns a current one
 
-	s.all = newproxy(true)
-	getmetatable(s.all).__tostring = function()
-		return "s.all"
-	end
-end
-
+	@param key any -- the unique key for the store
+	@return s typeof(s.new()) -- the store class
+]=]
 function s.new(key: any?): typeof(s.new())
 	key = key ~= nil and key or game
 
@@ -88,6 +109,13 @@ function s.new(key: any?): typeof(s.new())
 	return s.stores[key]
 end
 
+--[=[
+	Publish the state to the store and fire any subscriptions
+
+	@param state table | string -- the state to publish
+	@param value any? -- an optional state to set as
+	@return update table -- the updated state table
+]=]
 function s:publish(state: table | string, value: any?): table
 	assert(state ~= nil, "'set' Argument 1 missing or nil")
 
@@ -125,35 +153,32 @@ function s:publish(state: table | string, value: any?): table
 	return update
 end
 
-function s:sanitize(value: table | any): boolean
-	local attributes = {
-		"string",
-		"boolean",
-		"number",
-		"UDim",
-		"UDim2",
-		"BrickColor",
-		"Color3",
-		"Vector2",
-		"Vector3",
-		"NumberSequence",
-		"ColorSequence",
-		"NumberRange",
-		"Rect",
-	}
+--[=[
+	Sanitizes a data value and returns a boolean
 
+	@param value table | any -- the value or table of values to be sanitized
+	@return check boolean -- true if passed, false if not
+]=]
+function s:sanitize(value: table | any): boolean
 	if typeof(value) == "table" then
 		for key, data in pairs(value) do
-			if not table.find(attributes, typeof(data)) then
+			if not table.find(s._attributeTypes, typeof(data)) then
 				return false, key
 			end
 		end
 		return true
 	else
-		return table.find(attributes, typeof(value)) ~= nil
+		return table.find(s._attributeTypes, typeof(value)) ~= nil
 	end
 end
 
+--[[
+	Fire all callbacks on the key provided
+
+	@param state string -- the state to fire
+	@param value any -- the value to update with
+	@return s typeof(s.new()) -- self class
+]]
 function s:fire(state: string, value: any): typeof(s.new())
 	for _, subscriptions in ipairs(self._subscriptions) do
 		if not table.find(subscriptions.keys, s.all) and not table.find(subscriptions.keys, state) then
@@ -169,6 +194,13 @@ function s:fire(state: string, value: any): typeof(s.new())
 	return self
 end
 
+--[=[
+	Watch for changes on all keys or specified keys
+
+	@param keys table | any -- the keys to watch
+	@param callback () -> () -- the function to call
+	@return methods table -- the unsubscribe method to disconnect
+]=]
 function s:subscribe(keys: table | any, callback: () -> ()): table
 	assert(keys ~= nil, "'subscribe' Argument 1 missing or nil")
 	assert(typeof(callback) == "function", "'subscribe' Argument 2 must be a function")
@@ -214,6 +246,13 @@ function s:subscribe(keys: table | any, callback: () -> ()): table
 	}
 end
 
+--[=[
+	Initialize a roact component with the state store
+
+	@param component table -- the roact component class
+	@param keys table? -- the optional keys (or all!) to inject state
+	@return component table -- return the roact component
+]=]
 function s:roact(component: table, keys: table?): table
 	assert(typeof(component) == "table", "'roact' Argument 1 must be a Roact Component")
 	assert(typeof(keys) == "table", "'roact' Argument 2 expected a table, got '" .. typeof(keys) .. "'")
@@ -263,6 +302,12 @@ function s:roact(component: table, keys: table?): table
 	return component
 end
 
+--[=[
+	Define an interface with t to filter state
+
+	@param interface () -> () -- the t.interface or t.strictInterface function
+	@return interface () -> () -- the same t interface function
+]=]
 function s:define(interface: () -> ()): () -> ()
 	assert(typeof(interface) == "function", "'s:interface' only takes an interface from t")
 
@@ -271,6 +316,12 @@ function s:define(interface: () -> ()): () -> ()
 	return interface
 end
 
+--[=[
+	A replacement for s.new()
+
+	@param key any -- the key can be anything except nil
+	@return s typeof(s.new()) -- the state store
+]=]
 function s:__call(key: any): typeof(s.new())
 	if s.stores[key] then
 		s.stores[key]._key = key
@@ -281,6 +332,11 @@ function s:__call(key: any): typeof(s.new())
 	return s.new(key)
 end
 
+--[=[
+	When debugging, use print(s) to check the store key
+
+	@return key string -- the key name or path
+]=]
 function s:__tostring()
 	return "s: " .. typeof(self._key) == "Instance" and self._key:GetFullName() or tostring(self._key)
 end
