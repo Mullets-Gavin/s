@@ -2,7 +2,7 @@
 <h1>s</h1>
 
 [![version](https://img.shields.io/badge/version-v0.0.1-red?style=flat-square)](https://github.com/Mullets-Gavin/s/releases)
-[![portfolio](https://img.shields.io/badge/visit-portfolio-blueviolet?style=flat-square)](https://mullets.xyz)
+[![docs](https://img.shields.io/badge/docs-link-blueviolet?style=flat-square)](https://github.com/Mullets-Gavin/s#documentation)
 [![support](https://img.shields.io/badge/support-mullets-blue?style=flat-square)](https://www.buymeacoffee.com/mullets)
 
 *A state management library for Roblox*
