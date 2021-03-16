@@ -33,6 +33,11 @@ local function copy(master: table): table
 	return clone
 end
 
+--[=[
+	Wrap and call a function instantly
+	
+	@param code () -> () -- the function to call
+]=]
 local function wrap(code: (any) -> (), ...): nil
 	local thread = coroutine.create(code)
 	local ran, response = coroutine.resume(thread, ...)
