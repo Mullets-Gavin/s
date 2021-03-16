@@ -180,7 +180,7 @@ Watch for changes on all keys or specified keys with a callback function. Use `s
 * `context = { state: any, value: any }` -- the context object passed in the callback function with `.state` and `.value`
 
 **Returns:**
-* `unsubscribe` -- returns the unsubscribe method to disconnect the subscription
+* `Subscription` -- returns a subscription object to disconnect the subscription
 
 **Example:**
 ```lua
@@ -202,7 +202,7 @@ end)
 </details>
 
 <details>
-<summary><code>method s:unsubscribe()</code></summary>
+<summary><code>method Subscription:unsubscribe()</code></summary>
 
 Unsubscribes a subscription and disconnects the object
 
