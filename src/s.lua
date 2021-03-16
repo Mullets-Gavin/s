@@ -110,13 +110,13 @@ function s.new(key: any?): typeof(s.new())
 end
 
 --[=[
-	Publish the state to the store and fire any subscriptions
+	Set the state to the store and fire any subscriptions
 
-	@param state table | string -- the state to publish
+	@param state table | string -- the state to set
 	@param value any? -- an optional state to set as
 	@return update table -- the updated state table
 ]=]
-function s:publish(state: table | string, value: any?): table
+function s:set(state: table | string, value: any?): table
 	assert(state ~= nil, "'set' Argument 1 missing or nil")
 
 	local update = copy(self.state)
@@ -219,7 +219,7 @@ function s:subscribe(keys: table | any, callback: () -> ()): table
 				local stateValue = self.state[key]
 
 				if attributeValue ~= stateValue then
-					self:publish({ key = attributeValue })
+					self:set({ [key] = attributeValue })
 				end
 			end)
 		end
@@ -306,7 +306,7 @@ end
 	Define an interface with t to filter state
 
 	@param interface () -> () -- the t.interface or t.strictInterface function
-	@return interface () -> () -- the same t interface function
+	@return interface () -> () -- returns the same t interface function
 ]=]
 function s:define(interface: () -> ()): () -> ()
 	assert(typeof(interface) == "function", "'s:interface' only takes an interface from t")
