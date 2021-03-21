@@ -221,4 +221,4 @@ s:set({ counter = 0 })
 
 ## License
 
-This project is licensed under the MIT license. See [LICENSE](https://github.com/Mullets-Gavin/Loader/blob/master/LICENSE) for details.
+This project is licensed under the MIT license. See [LICENSE](https://github.com/Mullets-Gavin/s/blob/master/LICENSE) for details.
