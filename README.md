@@ -211,7 +211,7 @@ Unsubscribes a subscription and disconnects the object
 
 **Example:**
 ```lua
-local subscription = s:subscribe(s.all, function(context)
+local subscription; subscription = s:subscribe(s.all, function(context)
 	subscription:unsubscribe()
 end)
 
